@@ -1,12 +1,8 @@
+/*colour scheme for images and wesite: https://colorhunt.co/palette/a59d84c1baa1d7d3bfecebde*/
 :root {
   --background: white;
   --text: #A59D84;
   --boxes: #ECEBDE;
-
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 body{
