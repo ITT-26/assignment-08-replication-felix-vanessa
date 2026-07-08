@@ -1,121 +1,66 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import sq1 from './assets/sq1.png'
+import sq2 from './assets/sq2.png'
+import sq3 from './assets/sq3.png'
+import circle from './assets/circle.png'
+import zoom from './assets/zoom.png'
+// svgs from https://phosphoricons.com/?q=arrow&color=a59d84&size=48
+import side_arrows from './assets/arrows-horizontal.svg'
+import swipe_arrows from './assets/arrows-vertical.svg'
+import rotate_arrows from './assets/arrows-counter-clockwise.svg'
+import zoom_arrows from './assets/arrows-out-simple.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedImg, setSelectedImg] = useState(0)
+
+  function switchImage(motion){
+        // if finger is swiped to thr right, left image is selected
+        if (motion === "right"){
+            setSelectedImg(prev => (prev === 0 ? 2 : prev - 1));
+        }
+        // if finger is swiped to the left, right image is selected
+        if (motion === "left"){
+            setSelectedImg(prev => (prev === 2 ? 0 : prev + 1));
+        }
+    }
+
+    function getImage(){
+        if (selectedImg === 0){return <img className='swipeImg' src={sq1}></img>}
+        if (selectedImg === 1){return <img className='swipeImg' src={sq2}></img>}
+        if (selectedImg === 2){return <img className='swipeImg' src={sq3}></img>}
+    }
+
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className='main'>
+      <h1 className='header'>GlassHands</h1>
+      <div className='intro'>
+        <img className='icon' src= {swipe_arrows}></img>
+        <p>Swipe up on the area next to the phone to see the demo.</p>
+      </div>
+      <div className='swipe'>
+        <div>{getImage()}</div>
+        <div className='instruction'>
+          <img className='icon' src= {side_arrows}></img>
+          <p>Swipe to either side to change the image.</p>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+      </div>
+      <div className='rotate'>
+        <img className='rotImg' src={circle}></img>
+        <div className='instruction'>
+          <img className='rotateIcon' src= {rotate_arrows}></img>
+          <p>Place fingers on either side of the phone and do a rotating motion.</p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      </div>
+      <div className='zoom'>
+        <div className='zoomImgBorder'><img className='zoomImg' src={zoom}></img></div>
+        <div className='instruction'>
+          <img className='zoomIcon' src= {zoom_arrows}></img>
+          <p>Place fingers on either side of the phone and do a zoom motion.</p>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      </div>
+    </div>
   )
 }
 
