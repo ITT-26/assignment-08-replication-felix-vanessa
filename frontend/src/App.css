@@ -1,3 +1,32 @@
+.permission {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.permission button {
+  font-size: 18px;
+  padding: 14px 28px;
+}
+
+.permissionError {
+  color: #d33;
+}
+
+.debugToggle {
+  float: right;
+  font-size: 16px;
+  padding: 10px 18px;
+}
+
+.debugView video {
+  width: 100%;
+  transform: scaleX(-1);
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import sq1 from './assets/sq1.png'
 import sq2 from './assets/sq2.png'
 import sq3 from './assets/sq3.png'
@@ -13,6 +13,26 @@ import './App.css'
 
 function App() {
   const [selectedImg, setSelectedImg] = useState(0)
+  const [cameraGranted, setCameraGranted] = useState(false)
+  const [cameraError, setCameraError] = useState(null)
+  const [showDebug, setShowDebug] = useState(false)
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
+
+  async function requestCamera(){
+    try {
+      streamRef.current = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+      setCameraGranted(true)
+    } catch (err) {
+      setCameraError('Camera access was denied. Please allow camera access and try again.')
+    }
+  }
+
+  useEffect(() => {
+    if (showDebug && videoRef.current && streamRef.current){
+      videoRef.current.srcObject = streamRef.current
+    }
+  }, [showDebug])
 
   function switchImage(motion){
         // if finger is swiped to thr right, left image is selected
@@ -32,9 +52,31 @@ function App() {
     }
 
 
+  if (!cameraGranted){
+    return (
+      <div className='main'>
+        <h1 className='header'>GlassHands</h1>
+        <div className='permission'>
+          <p>GlassHands needs access to your front camera to track hand gestures.</p>
+          {cameraError && <p className='permissionError'>{cameraError}</p>}
+          <button onClick={requestCamera}>Enable camera access</button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='main'>
-      <h1 className='header'>GlassHands</h1>
+      <h1 className='header'>GlassHands
+        <button className='debugToggle' onClick={() => setShowDebug(prev => !prev)}>
+          {showDebug ? 'Hide debug' : 'Debug'}
+        </button>
+      </h1>
+      {showDebug && (
+        <div className='debugView'>
+          <video ref={videoRef} autoPlay playsInline muted></video>
+        </div>
+      )}
       <div className='intro'>
         <img className='icon' src= {swipe_arrows}></img>
         <p>Swipe up on the area next to the phone to see the demo.</p>
