@@ -326,17 +326,6 @@ html, body, #root {
   border-color: #ff7a00;
   box-shadow: 0 0 22px rgba(255, 122, 0, 0.75);
 }
-.carouselDots {
-  position: absolute;
-  bottom: 12px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-.cdot { width: 7px; height: 7px; border-radius: 50%; background: rgba(0, 0, 0, 0.25); }
-.cdot.on { background: rgba(0, 0, 0, 0.6); }
 
 .counter {
   font-size: 16px;

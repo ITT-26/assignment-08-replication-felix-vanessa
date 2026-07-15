@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GlassTracker } from './glassTracker';
 
 // Runs a GlassTracker frame loop over the <video>, painting the pano + preview
-// canvases. Returns { status, tracked, dotsUsed, handLeft, handRight } (stats
-// throttled to a few updates/sec). StrictMode-safe via the `cancelled` flag.
+// canvases. Returns { status, tracked, dotsUsed, handLeft, handRight, gestureRef }.
+// Stats are throttled to a few updates/sec for UI; gestureRef holds the raw
+// per-frame result unthrottled (for gesture-driven controls). StrictMode-safe via
+// the `cancelled` flag.
 export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, active) {
   const [status, setStatus] = useState('idle');
   const [stats, setStats] = useState({ tracked: false, dotsUsed: 0, handLeft: false, handRight: false });
+  const gestureRef = useRef({ tracked: false, handLeft: null, handRight: null, tipLeft: null, tipRight: null });
 
   useEffect(() => {
     if (!active) return undefined;
@@ -23,6 +26,7 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
       const video = videoRef.current;
       if (tracker && video && video.videoWidth) {
         const res = tracker.step(video, zoomCanvasRef.current, previewCanvasRef.current);
+        if (res) gestureRef.current = res;   // unthrottled, for gesture controls
         const now = performance.now();
         if (res && now - lastStats > 250) {
           lastStats = now;
@@ -82,5 +86,6 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
     dotsUsed: stats.dotsUsed,
     handLeft: stats.handLeft,
     handRight: stats.handRight,
+    gestureRef,
   };
 }

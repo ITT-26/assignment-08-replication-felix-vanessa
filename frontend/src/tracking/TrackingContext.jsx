@@ -92,7 +92,7 @@ export function TrackingProvider({ children }) {
     requestCamera,
     zoomCanvasRef,
     previewCanvasRef,
-    ...tracker, // status, tracked, dotsUsed, handLeft, handRight
+    ...tracker, // status, tracked, dotsUsed, handLeft, handRight, gestureRef
   }
 
   return (
