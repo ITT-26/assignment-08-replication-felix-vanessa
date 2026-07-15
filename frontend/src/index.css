@@ -92,7 +92,8 @@ button, .button{
 .nav{
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 1em;
   width: 100%;
 }
