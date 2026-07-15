@@ -1,16 +1,30 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../App.css'
 
 function Header(){
     const navigate = useNavigate();
+    const { pathname } = useLocation();
+
+    const tabs = [
+        { path: '/', label: 'Debug' },
+        { path: '/swipe', label: 'Swipe' },
+        { path: '/rotate', label: 'Rotate' },
+        { path: '/map', label: 'Map' },
+    ];
+
     return(
         <div className='header'>
             <h1>GlassHands</h1>
             <div className='nav'>
-                <p onClick={() => navigate(`/`)}>Debug</p>
-                <p onClick={() => navigate(`/swipe`)}>Swipe</p>
-                <p onClick={() => navigate(`/rotate`)}>Rotate</p>
-                <p onClick={() => navigate(`/map`)}>Map</p>
+                {tabs.map(({ path, label }) => (
+                    <p
+                        key={path}
+                        className={pathname === path ? 'active' : ''}
+                        onClick={() => navigate(path)}
+                    >
+                        {label}
+                    </p>
+                ))}
             </div>
         </div>
     )
