@@ -11,9 +11,10 @@ body{
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 360px;
-  border: solid 3px black;
+  width: 370px;
   padding: 5px;
+  margin: 0;
+  border: 2px solid black;
 }
 
 p, img{
@@ -27,12 +28,24 @@ p{
   text-align: center;
 }
 
+button, .button{
+  background-color: var(--boxes);
+  color: var(--text);
+  border: 1px solid var(--text);
+}
+
+.button.recording{
+  border: 2px solid red;
+}
+
 .main, .header, .swipe, .instruction, .intro, .rotate, .zoom{
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  padding: 0;
+  margin: 0;
 }
 
 .swipe, .rotate, .zoom{
@@ -40,7 +53,7 @@ p{
   border-style: solid;
   border-width: 2px;
   border-color: var(--boxes);
-  width: 80%;
+  width: 90%;
   margin-bottom: 1em;
 }
 
@@ -50,7 +63,7 @@ p{
 }
 
 .instruction{
-  gap: 2px;
+  gap: 4px;
 }
 
 .rotateIcon{
@@ -70,5 +83,35 @@ p{
 .zoomImg{
   width: 20px;
   height: auto;
+}
+
+.nav{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-bottom: 1em;
+  width: 100%;
+}
+
+.nav p{
+  border: solid 1px var(--text);
+  background-color: var(--boxes);
+}
+
+.imageContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.swipeImg {
+    display: block;
+}
+
+.star{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
