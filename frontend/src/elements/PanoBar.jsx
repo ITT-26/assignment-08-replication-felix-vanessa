@@ -1,9 +1,9 @@
 import { useTracking } from '../tracking/TrackingContext'
 import '../App.css'
 
-// Top bar shown on every tab: the pano, with a per-hand green dot on each side.
+// Top bar shown on every tab: the pano.
 function PanoBar() {
-    const { cameraGranted, cameraError, requestCamera, status, handLeft, handRight, zoomCanvasRef } = useTracking()
+    const { cameraGranted, cameraError, requestCamera, status, zoomCanvasRef } = useTracking()
 
     if (!cameraGranted) {
         return (
@@ -21,8 +21,6 @@ function PanoBar() {
         <div className='panoBar'>
             <div className='zoomWrap'>
                 <canvas ref={zoomCanvasRef} className='zoomCanvas'></canvas>
-                <span className={handLeft ? 'handDot left on' : 'handDot left'}></span>
-                <span className={handRight ? 'handDot right on' : 'handDot right'}></span>
                 {status === 'loading' && (
                     <div className='panoOverlay'>Loading OpenCV & hand model…</div>
                 )}

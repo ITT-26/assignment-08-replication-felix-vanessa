@@ -13,10 +13,13 @@ const CAM_FLAG = 'glasshands.cameraGranted'   // remembers a prior grant across 
 export function TrackingProvider({ children }) {
   const [cameraGranted, setCameraGranted] = useState(false)
   const [cameraError, setCameraError] = useState(null)
+  const [gestureHand, setGestureHand] = useState('right')
   const videoRef = useRef(null)
   const streamRef = useRef(null)
   const zoomCanvasRef = useRef(null)
   const previewCanvasRef = useRef(null)
+  const gestureHandRef = useRef(gestureHand)  // live value for the rAF loops
+  gestureHandRef.current = gestureHand
 
   // Auto-start has no user gesture, so autoplay can stall on the first frame --
   // attach and explicitly play().
@@ -90,6 +93,9 @@ export function TrackingProvider({ children }) {
     cameraGranted,
     cameraError,
     requestCamera,
+    gestureHand,
+    setGestureHand,
+    gestureHandRef,
     zoomCanvasRef,
     previewCanvasRef,
     ...tracker, // status, tracked, dotsUsed, handLeft, handRight, gestureRef

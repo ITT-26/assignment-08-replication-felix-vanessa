@@ -9,7 +9,6 @@ function BottomNav(){
     const tabs = [
         { path: '/', label: 'Debug' },
         { path: '/swipe', label: 'Cut-Paste' },
-        { path: '/rotate', label: 'Rotate' },
         { path: '/map', label: 'Map' },
     ];
 

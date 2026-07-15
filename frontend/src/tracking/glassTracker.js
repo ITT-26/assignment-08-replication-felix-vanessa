@@ -51,8 +51,16 @@ const GAMMA = 0.4, CLAHE_CLIP = 4.0, BILATERAL_D = 3, SAT_BOOST = 2.2;
 // inference call (a raw lens crop is too small to track on its own).
 const HAND_TILE = 320;
 const INDEX_FINGERTIP = 8;
+const PINCH_RATIO = 0.45;  // pinch when thumb-index gap < this * palm size
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+// True when the thumb-index gap is small relative to palm size (a pinch).
+export function handPinching(pts) {
+  if (!pts) return false;
+  const palm = Math.hypot(pts[0][0] - pts[9][0], pts[0][1] - pts[9][1]) || 1;
+  return Math.hypot(pts[4][0] - pts[8][0], pts[4][1] - pts[8][1]) / palm < PINCH_RATIO;
+}
 
 export class GlassTracker {
   constructor() {
@@ -431,18 +439,20 @@ export class GlassTracker {
 
   // ---- Debug rendering ----
   drawHandSkeleton(ctx, pts) {
-    ctx.strokeStyle = '#00c800';
-    ctx.lineWidth = 1;
+    // Cyan while pinching, else green.
+    const pinching = handPinching(pts);
+    ctx.strokeStyle = pinching ? '#00e5ff' : '#00c800';
+    ctx.lineWidth = 2;
     for (const { start, end } of this.HandLandmarker.HAND_CONNECTIONS) {
       ctx.beginPath();
       ctx.moveTo(pts[start][0], pts[start][1]);
       ctx.lineTo(pts[end][0], pts[end][1]);
       ctx.stroke();
     }
-    ctx.fillStyle = '#00ff00';
+    ctx.fillStyle = pinching ? '#80f0ff' : '#00ff00';
     for (const [x, y] of pts) {
       ctx.beginPath();
-      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -539,10 +549,6 @@ export class GlassTracker {
       if (!tip) continue;
       ctx.beginPath(); ctx.arc(tip[0], tip[1], 9, 0, Math.PI * 2); ctx.stroke();
     }
-    if (tipLeft && tipRight) {
-      ctx.strokeStyle = 'yellow';
-      ctx.beginPath(); ctx.moveTo(tipLeft[0], tipLeft[1]); ctx.lineTo(tipRight[0], tipRight[1]); ctx.stroke();
-    }
     ctx.restore();
   }
 
@@ -579,11 +585,12 @@ export class GlassTracker {
       const hands = tracked ? this.detectHands(display) : { [LEFT]: null, [RIGHT]: null };
       const handLeft = hands[LEFT]?.pts ?? null, handRight = hands[RIGHT]?.pts ?? null;
       const tipLeft = this.handTip(handLeft), tipRight = this.handTip(handRight);
+      const pinchLeft = handPinching(handLeft), pinchRight = handPinching(handRight);
 
       if (previewCanvas) this.renderPreview(previewCanvas, video, M, warpW, warpH, dotLeft, dotRight);
       if (zoomCanvas) this.renderZoom(zoomCanvas, display, handLeft, tipLeft, handRight, tipRight);
 
-      return { tracked, dotsUsed, handLeft, handRight, tipLeft, tipRight };
+      return { tracked, dotsUsed, handLeft, handRight, tipLeft, tipRight, pinchLeft, pinchRight };
     } catch (err) {
       console.error(err);
       return null;

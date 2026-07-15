@@ -8,7 +8,7 @@ import { GlassTracker } from './glassTracker';
 // the `cancelled` flag.
 export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, active) {
   const [status, setStatus] = useState('idle');
-  const [stats, setStats] = useState({ tracked: false, dotsUsed: 0, handLeft: false, handRight: false });
+  const [stats, setStats] = useState({ tracked: false, dotsUsed: 0, handLeft: false, handRight: false, fps: 0 });
   const gestureRef = useRef({ tracked: false, handLeft: null, handRight: null, tipLeft: null, tipRight: null });
 
   useEffect(() => {
@@ -20,14 +20,21 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
     let usingVfc = false;
     let vfcVideo = null;   // video a pending VFC was scheduled on (for cancel)
     let lastStats = 0;     // stats-throttle timestamp
+    let lastFrame = 0;
+    let fps = 0;
 
     const tick = () => {
       if (cancelled) return;
+      const now = performance.now();
+      if (lastFrame) {
+        const inst = 1000 / (now - lastFrame);
+        fps = fps ? fps * 0.9 + inst * 0.1 : inst;
+      }
+      lastFrame = now;
       const video = videoRef.current;
       if (tracker && video && video.videoWidth) {
         const res = tracker.step(video, zoomCanvasRef.current, previewCanvasRef.current);
         if (res) gestureRef.current = res;   // unthrottled, for gesture controls
-        const now = performance.now();
         if (res && now - lastStats > 250) {
           lastStats = now;
           setStats({
@@ -35,6 +42,7 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
             dotsUsed: res.dotsUsed,
             handLeft: !!res.handLeft,
             handRight: !!res.handRight,
+            fps: Math.round(fps),
           });
         }
       }
@@ -86,6 +94,7 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
     dotsUsed: stats.dotsUsed,
     handLeft: stats.handLeft,
     handRight: stats.handRight,
+    fps: stats.fps,
     gestureRef,
   };
 }

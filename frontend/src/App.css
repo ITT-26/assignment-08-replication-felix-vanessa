@@ -102,23 +102,6 @@ html, body, #root {
   background: #000;
 }
 
-/* Per-hand indicator in the pano's top corners: grey, green when detected. */
-.handDot {
-  position: absolute;
-  top: 16px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ccc;
-  transition: background 0.15s, box-shadow 0.15s;
-}
-.handDot.left { left: 16px; }
-.handDot.right { right: 16px; }
-.handDot.on {
-  background: #2ecc71;
-  box-shadow: 0 0 8px #2ecc71;
-}
-
 /* Debug tab: full-frame preview + readout. */
 .debugContent {
   display: flex;
@@ -128,25 +111,48 @@ html, body, #root {
   padding: 10px 8px;
 }
 
-.trackerStatus {
+.debugBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.fpsCounter {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+  color: #2f2b20;
+  line-height: 1;
+}
+.handToggle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  opacity: 0.85;
-  font-size: 13px;
-  margin: 0;
+  gap: 10px;
+  font-size: 14px;
+  color: #2f2b20;
 }
-
-.trackerStatus .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ccc;
+.segmented {
+  display: inline-flex;
+  border: 1px solid #2f2b20;
+  border-radius: 6px;
+  overflow: hidden;
 }
-
-.trackerStatus .dot.on {
-  background: #2ecc71;
-  box-shadow: 0 0 6px #2ecc71;
+.segmented button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #2f2b20;
+  font-size: 14px;
+  cursor: pointer;
+}
+.segmented button.on {
+  background: #2f2b20;
+  color: #fff;
+  font-weight: bold;
 }
 
 .trackerHint {
@@ -202,24 +208,16 @@ html, body, #root {
 
 /* ---- Demo views fill the space between the pano and the bottom nav ---- */
 
-/* Rotate: wheel centered, no box border. */
-.rotateView .rotate {
-  width: 100%;
-  height: 100%;
-  border: none;
-  margin: 0;
-  justify-content: center;
-  gap: 1.5em;
-}
-.rotateView .rotImg {
-  width: 70%;
-  max-width: 280px;
-  height: auto;
-  aspect-ratio: 1 / 1;
-  flex-shrink: 0;   /* don't let the flex column squish it vertically */
+.clearBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;  /* above Leaflet panes/controls */
+  padding: 6px 14px;
+  border-radius: 6px;
 }
 
-/* Map: fills the area, no border; instruction overlays the bottom. */
+/* Map: fills the area, no border. */
 .mapView {
   position: relative;
 }
@@ -302,29 +300,35 @@ html, body, #root {
   z-index: 5;
 }
 
-/* Border + radius live directly on the <img> (not a wrapper with
-   overflow:hidden) -- iOS Safari doesn't reliably clip a raster child to a
-   parent's rounded corners, which left thin white slivers at the edges. */
-.holdImg {
+/* Bordered box clips the zoomed image inside it, cropping the PNG's transparent
+   edge padding (which otherwise shows as a white sliver against the border). */
+.holdImgBox {
   width: 220px;
   max-width: 70%;
-  height: auto;
-  display: block;
-  background: #fff;
+  aspect-ratio: 250 / 187;
   border: 6px solid #444;
-  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
   cursor: pointer;
   pointer-events: auto;
   touch-action: none;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  -webkit-user-drag: none;
   transition: box-shadow 0.15s, border-color 0.15s;
 }
-.holdImg.held {
+.holdImgBox.held {
   border-color: #ff7a00;
   box-shadow: 0 0 22px rgba(255, 122, 0, 0.75);
+}
+.holdImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 
 .counter {

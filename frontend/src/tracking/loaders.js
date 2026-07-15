@@ -27,14 +27,21 @@ export function loadHandLandmarker() {
     // in /public and are fetched by URL, not imported.
     const { FilesetResolver, HandLandmarker } = await import('./vendor/tasks-vision/vision_bundle.mjs');
     const fileset = await FilesetResolver.forVisionTasks('/vendor/tasks-vision/wasm');
-    const handLandmarker = await HandLandmarker.createFromOptions(fileset, {
-      baseOptions: { modelAssetPath: '/models/hand_landmarker.task' },
+    const opts = (delegate) => ({
+      baseOptions: { modelAssetPath: '/models/hand_landmarker.task', delegate },
       runningMode: 'VIDEO',
       numHands: 2,
-      minHandDetectionConfidence: 0.5,
-      minHandPresenceConfidence: 0.5,
+      minHandDetectionConfidence: 0.4,
+      minHandPresenceConfidence: 0.4,
       minTrackingConfidence: 0.5,
     });
+    let handLandmarker;
+    try {
+      handLandmarker = await HandLandmarker.createFromOptions(fileset, opts('GPU'));
+    } catch (err) {
+      console.warn('Hand landmarker GPU delegate failed, falling back to CPU', err);
+      handLandmarker = await HandLandmarker.createFromOptions(fileset, opts('CPU'));
+    }
     return { HandLandmarker, handLandmarker };
   })();
   return handPromise;
