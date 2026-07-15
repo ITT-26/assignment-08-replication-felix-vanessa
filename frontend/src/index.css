@@ -5,13 +5,20 @@
   --boxes: #ECEBDE;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body{
   background-color: var(--background);
   color: var(--text);
-  display: flex;
+  /*display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center;*/
   width: 370px;
+  height: 100%;
   padding: 5px;
   margin: 0;
   border: 2px solid black;
@@ -37,11 +44,14 @@ button, .button{
 .button.recording{
   border: 2px solid red;
 }
+.main{
+  height: 100%;
+}
 
 .main, .header, .swipe, .instruction, .intro, .rotate, .zoom{
   width: 100%;
   display: flex;
-  justify-content: center;
+  /*justify-content: center;*/
   align-items: center;
   flex-direction: column;
   padding: 0;
@@ -57,13 +67,8 @@ button, .button{
   margin-bottom: 1em;
 }
 
-.intro{
-  padding-bottom: 30px;
-  gap: 5px;
-}
-
 .instruction{
-  gap: 4px;
+  gap: 1em;
 }
 
 .rotateIcon{
@@ -123,5 +128,11 @@ button, .button{
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1;
+}
+
+.Map {
+  height: 400px;
+  width: 100%;
+  border: 2px solid var(--text);
 }
 

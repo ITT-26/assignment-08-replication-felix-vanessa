@@ -10,6 +10,7 @@ function Header(){
                 <p onClick={() => navigate(`/`)}>Debug</p>
                 <p onClick={() => navigate(`/swipe`)}>Swipe</p>
                 <p onClick={() => navigate(`/rotate`)}>Rotate</p>
+                <p onClick={() => navigate(`/map`)}>Map</p>
             </div>
         </div>
     )
