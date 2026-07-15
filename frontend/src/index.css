@@ -100,11 +100,21 @@ button, .button{
 
 .imageContainer {
     position: relative;
-    display: inline-block;
+    width: 300px;
+    /*display: inline-block;*/
+    overflow: hidden;
+}
+
+.sliderTrack {
+    display: flex;
+    transition: transform 0.4s ease-in-out;
 }
 
 .swipeImg {
-    display: block;
+  width: 300px;  
+  height: auto;
+  flex-shrink: 0;
+  display: block;
 }
 
 .star{

@@ -7,7 +7,7 @@ import '../App.css'
 function Rotate(){
   const [recording, setRecording] = useState(false);
     return(
-        <div className='Main'>
+        <div className='main'>
             <div className='rotate'>
                 <img className='rotImg' src={circle}></img>
                 <div className='instruction'>

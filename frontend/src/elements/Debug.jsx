@@ -35,7 +35,7 @@ function Debug(){
     }
 
     return(
-        <div className='Main'>
+        <div className='main'>
             <div className='debugView'>
                 <video ref={videoRef} autoPlay playsInline muted></video>
             </div>

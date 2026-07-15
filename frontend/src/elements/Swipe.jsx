@@ -10,6 +10,7 @@ import '../App.css'
 function Swipe(){
     const [selectedImg, setSelectedImg] = useState(0)
     const [recording, setRecording] = useState(false);
+    const images = [sq1, sq2, sq3];
       
     function switchImage(motion){
         // if finger is swiped to thr right, left image is selected
@@ -29,10 +30,24 @@ function Swipe(){
     }
 
     return(
-        <div className='Main'>
+        <div className='main'>
             <div className='swipe'>
                 <div className="imageContainer">
-                    {getImage()}
+                    <div
+                        className="sliderTrack"
+                        style={{
+                            transform: `translateX(-${selectedImg * 100}%)`,
+                        }}
+                    >
+                        {images.map((img, index) => (
+                            <img
+                                key={index}
+                                src={img}
+                                alt={`Background ${index + 1}`}
+                                className="swipeImg"
+                            />
+                        ))}
+                    </div>
 
                     <img src={star} className='star'></img>
                 </div>
