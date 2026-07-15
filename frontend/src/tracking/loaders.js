@@ -1,15 +1,8 @@
-// Lazy, cached loaders for the two heavy dependencies the tracking pipeline
-// needs: OpenCV.js (vendored as a global script) and the MediaPipe Hand
-// Landmarker (vendored ESM bundle + wasm + model). Both are module-level
-// singletons so React StrictMode's double-mount and repeat visits to the Debug
-// tab share a single load. Assets live under frontend/public/ (served at web
-// root), mirroring the standalone prototype.
+// Cached, lazy loaders for OpenCV.js and the MediaPipe Hand Landmarker.
 
 let cvPromise = null;
 
-// The @techstark/opencv-js build assigns window.cv a thenable that resolves to
-// the ready module -- matching how the prototype does `await window.cv`. We
-// inject the script once, then await that.
+// This opencv build assigns window.cv a thenable resolving to the ready module.
 export function loadOpenCV() {
   if (cvPromise) return cvPromise;
   cvPromise = new Promise((resolve, reject) => {
@@ -26,16 +19,12 @@ export function loadOpenCV() {
 
 let handPromise = null;
 
-// Native dynamic import of the vendored .mjs (marked @vite-ignore so Vite leaves
-// the public-asset URL alone). Returns both the ready landmarker and the
-// HandLandmarker class -- the class carries HAND_CONNECTIONS, used when drawing
-// the skeleton overlay.
+// Returns the ready landmarker plus the HandLandmarker class (for HAND_CONNECTIONS).
 export function loadHandLandmarker() {
   if (handPromise) return handPromise;
   handPromise = (async () => {
-    // The JS bundle lives in src/ so Vite bundles it as a lazy chunk (a /public
-    // file cannot be imported as a module). The wasm loader + model stay in
-    // /public -- those are fetched by URL below, not imported.
+    // Bundle lives in src/ (Vite can't import a /public file); wasm + model stay
+    // in /public and are fetched by URL, not imported.
     const { FilesetResolver, HandLandmarker } = await import('./vendor/tasks-vision/vision_bundle.mjs');
     const fileset = await FilesetResolver.forVisionTasks('/vendor/tasks-vision/wasm');
     const handLandmarker = await HandLandmarker.createFromOptions(fileset, {

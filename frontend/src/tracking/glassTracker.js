@@ -1,32 +1,26 @@
-// In-browser port of cv_video.py's detection pipeline, adapted from the
-// standalone prototype's app.js into a framework-agnostic class. Aligns the
-// glasses' reflection into a stabilized "pano" using two blue dot markers, then
-// runs MediaPipe Hand Landmarker on each lens crop to find the reaching
-// fingertip. Phone-screen detection from the prototype is intentionally omitted.
-//
-// All per-page globals from the prototype become instance state so the tracker
-// can be created, disposed, and re-created cleanly across React mounts.
+// Port of the prototype's dot-tracking pipeline (app.js) as a class: align the
+// glasses reflection into a stabilized "pano" from two blue dot markers, then
+// run MediaPipe Hand Landmarker on each lens crop. No phone detection.
 
 import { loadOpenCV, loadHandLandmarker } from './loaders';
 
-// ---- Config (mirrors cv_video.py / app.js constants) ----
-const PREVIEW_W = 480;          // raw-feed display width
-const WARP_MAX_W = 1280;        // cap on the source frame the pano is warped from
+// ---- Config ----
+const PREVIEW_W = 480;
+const WARP_MAX_W = 1280;        // cap on the warp source resolution
 const PANO_W = 640, PANO_H = 360;
-const EYE_X = 0.18, EYE_Y = 0.60;   // eye-anchor position in the pano; smaller EYE_X zooms in
+const EYE_X = 0.18, EYE_Y = 0.60;   // eye anchor in the pano; smaller EYE_X zooms in
 const EYE_SEP_PX = (1 - 2 * EYE_X) * PANO_W;
 const LEFT = -1, RIGHT = 1;
 
-// Blue dot markers stuck to the glasses' rigid front rim are the sole warp
-// anchor. OpenCV hue is 0-179; ~120 is a saturated blue.
+// Blue dot markers. OpenCV hue is 0-179; ~120 is a saturated blue.
 const DOT_HUE_LO = 90, DOT_HUE_HI = 140;
 const DOT_SAT_MIN = 80, DOT_VAL_MIN = 60;
-const DOT_SEARCH_FRAC = 0.6;    // search-box half-size, x last known inter-dot distance
+const DOT_SEARCH_FRAC = 0.6;    // search-box half-size x last inter-dot distance
 const DOT_MIN_AREA = 15;
-const DOT_BAND_FRAC = 0.5;      // vertical band the full-frame reacquisition scan is restricted to
-const DOT_HOLD_FRAMES = 6;      // coast through motion-blur dropouts before reacquiring
+const DOT_BAND_FRAC = 0.5;      // vertical band the full-frame scan is limited to
+const DOT_HOLD_FRAMES = 6;      // coast through blur dropouts before reacquiring
 
-// One-Euro filter (Casiez 2012): smooths hard when still, relaxes on motion.
+// One-Euro filter (Casiez 2012): smooths when still, relaxes on motion.
 const STAB_MINCUTOFF = 0.8, STAB_BETA = 0.02, STAB_DCUTOFF = 1.0;
 function euroAlpha(cutoff, dt) {
   const tau = 1.0 / (2.0 * Math.PI * cutoff);
@@ -46,17 +40,15 @@ class OneEuro {
   }
 }
 
-// Lens ROI: a dot-anchored ellipse per lens, axis-aligned since the warp
-// already removed roll.
+// Per-lens ROI ellipse.
 const LENS_DX = -0.22, LENS_DY = -0.10, LENS_RADIUS = 0.18, LENS_ASPECT = 0.90;
 const LENS_BOUNDS_PAD = 16;
 
 // Enhancement.
 const GAMMA = 0.4, CLAHE_CLIP = 4.0, BILATERAL_D = 3, SAT_BOOST = 2.2;
 
-// Hand detection: run once per frame on both lens crops upscaled and placed
-// side by side in a single inference call -- a raw lens crop is only ~150px
-// across, too small to track reliably on its own.
+// Both lens crops are upscaled to HAND_TILE and placed side by side for one
+// inference call (a raw lens crop is too small to track on its own).
 const HAND_TILE = 320;
 const INDEX_FINGERTIP = 8;
 
@@ -80,22 +72,20 @@ export class GlassTracker {
     this.eyeFilters = [new OneEuro(), new OneEuro(), new OneEuro(), new OneEuro()]; // eLx,eLy,eRx,eRy
     this.lastAlignTime = null;
 
-    // Lens geometry caches (fixed for the tracker's life).
     this.lensBoundsCache = new Map();
 
-    // Hand-detection scratch buffers.
+    // Hand-detection scratch canvas (two lens crops side by side).
     this.handFrameIdx = 0;
     this.handTileCanvas = document.createElement('canvas');
     this.handTileCanvas.width = HAND_TILE * 2;
     this.handTileCanvas.height = HAND_TILE;
     this.handTileCtx = this.handTileCanvas.getContext('2d');
 
-    // Offscreen warp source (mirrored full-res frame the pano is warped from).
+    // Offscreen mirrored warp source.
     this.warpCanvas = document.createElement('canvas');
     this.warpCtx = this.warpCanvas.getContext('2d', { willReadFrequently: true });
 
-    // Per-frame Mat/MatVector arena -- freed in step()'s finally so a caught
-    // mid-frame error can't leak WASM heap.
+    // Per-frame Mat arena, freed in step()'s finally (avoids WASM heap leaks).
     this.FA = [];
   }
 
@@ -328,8 +318,6 @@ export class GlassTracker {
     return this.claheInstance;
   }
 
-  // Returns the enhanced pano for display (the prototype also returned a
-  // pre-gamma luma + saturation for phone detection; that's dropped here).
   enhance(pano) {
     const cv = this.cv;
     const bf = this.keep(new cv.Mat());
@@ -459,8 +447,7 @@ export class GlassTracker {
     }
   }
 
-  // getUserMedia delivers raw, unmirrored sensor frames; mirror at capture so
-  // everything downstream operates on the mirrored frame as "the real one".
+  // Mirror at capture (getUserMedia delivers unmirrored sensor frames).
   drawMirrored(ctx, source, w, h) {
     ctx.save();
     ctx.translate(w, 0);
@@ -477,7 +464,7 @@ export class GlassTracker {
     rgba.delete();
   }
 
-  // Raw frame with the extracted-quad outline + detected dot markers.
+  // Raw feed + search-band lines + crop-quad + dot markers.
   renderPreview(previewCanvas, video, M, workW, workH, dotLeft, dotRight) {
     const cv = this.cv;
     const vw = video.videoWidth, vh = video.videoHeight;
@@ -525,8 +512,7 @@ export class GlassTracker {
     }
   }
 
-  // Zoomed-in glasses view: the rectified pano (enhanced) with lens ellipses,
-  // hand skeletons and fingertip markers. Cropped to the combined-lens box.
+  // Enhanced pano cropped to the lens box, with ellipses + hand skeletons + tips.
   renderZoom(zoomCanvas, display, handLeft, tipLeft, handRight, tipRight) {
     const rect = this.combinedLensRect();
     if (zoomCanvas.width !== rect.width || zoomCanvas.height !== rect.height) {
@@ -540,7 +526,7 @@ export class GlassTracker {
     ctx.save();
     ctx.translate(-rect.x, -rect.y);
 
-    ctx.lineWidth = 2; ctx.strokeStyle = 'cyan';
+    ctx.lineWidth = 2; ctx.strokeStyle = 'white';
     for (const side of [LEFT, RIGHT]) {
       const [cx, cy] = this.lensCenter(side), [rx, ry] = this.lensAxes();
       ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();

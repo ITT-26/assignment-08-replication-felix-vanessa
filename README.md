@@ -22,6 +22,26 @@ situation. Working against recorded footage instead of a live camera gave us a
 fixed, repeatable input so we could iterate on the pipeline quickly before
 porting it to the browser.
 
+We first tried extracting the glasses region using **face landmarks**, similar to
+the original paper. Even with smoothing, some wobble remained, which did not allow
+reliable position tracking. We ended up sticking **two cyan dot stickers** to the
+ends of the glasses frame instead. We track these dots by colour, smooth them, and
+apply a similarity warp. The result is stable enough that MediaPipe hand
+landmarking works reliably.
+
+For **phone detection** we tried several techniques. One challenge was the rounded
+corners of modern smartphones, which broke the rectangle-matching method we ran on
+the phone mask.
+
+For **hand tracking** we first tried a colour-based approach, which worked fine, but
+MediaPipe's hand landmarker turned out to be more accurate.
+
+**Choosing the right glasses** matters a lot. The lenses should be large enough to
+give as much resolution as possible, and curved just the right amount: enough to see
+a good portion of the table area, but not so much that the hands and phone become too
+small to track. They also need to be reflective enough that you cannot see through to
+the eye region, and the colour of the reflection should roughly match the real world.
+
 ### Running the Prototype
 
 ```bash
@@ -67,5 +87,6 @@ grant the **camera permission** when prompted.
 ## AI Disclaimer
 
 Porting the CV pipeline from the Python prototype to React was done with the
-help of Claude Code.
+help of Claude Code. It was also used for UI layout generation, specifically the
+app mockups in the Cut-Paste Demo.
 

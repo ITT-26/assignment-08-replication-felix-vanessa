@@ -1,63 +1,95 @@
-import { useState, useRef, useEffect } from 'react'
-import sq1 from '../assets/sq1.png'
-import sq2 from '../assets/sq2.png'
-import sq3 from '../assets/sq3.png'
-import star from '../assets/star.png'
-// svgs from https://phosphoricons.com/?q=arrow&color=a59d84&size=48
-import side_arrows from '../assets/arrows-horizontal.svg'
+import { useRef, useState } from 'react'
+import photo from '../assets/axolotl.png'
 import '../App.css'
 
+// Mockup: one office app fills the whole background; the image stays fixed in
+// the middle and can be held (orange outline) while the apps slide behind it.
+// Dragging the background slides smoothly between apps -- standing in for the
+// glasses gesture that will drop the image into whichever app is focused.
+const APPS = [
+    { name: 'Docs',   type: 'docs',   color: '#2b579a', letter: 'W' },
+    { name: 'Sheets', type: 'sheets', color: '#217346', letter: 'X' },
+    { name: 'Mail',   type: 'mail',   color: '#0a7ea4', letter: '@' },
+    { name: 'Notes',  type: 'notes',  color: '#7719aa', letter: 'N' },
+]
+
+const SWIPE_THRESHOLD = 60
+
 function Swipe(){
-    const [selectedImg, setSelectedImg] = useState(0)
-    const [recording, setRecording] = useState(false);
-    const images = [sq1, sq2, sq3];
-      
-    function switchImage(motion){
-        // if finger is swiped to thr right, left image is selected
-        if (motion === "right"){
-            setSelectedImg(prev => (prev === 0 ? 2 : prev - 1));
-        }
-        // if finger is swiped to the left, right image is selected
-        if (motion === "left"){
-            setSelectedImg(prev => (prev === 2 ? 0 : prev + 1));
-        }
+    const [focused, setFocused] = useState(0)
+    const [held, setHeld] = useState(false)
+    const [dragPx, setDragPx] = useState(0)
+    const [dragging, setDragging] = useState(false)
+    const startXRef = useRef(0)
+
+    function onDown(e){
+        e.currentTarget.setPointerCapture(e.pointerId)
+        startXRef.current = e.clientX
+        setDragging(true)
+        setDragPx(0)
+    }
+    function onMove(e){
+        if (!dragging) return
+        let dx = e.clientX - startXRef.current
+        // Rubber-band resistance past the first/last app.
+        if (focused === 0 && dx > 0) dx *= 0.4
+        if (focused === APPS.length - 1 && dx < 0) dx *= 0.4
+        setDragPx(dx)
+    }
+    function onUp(){
+        if (!dragging) return
+        const dx = dragPx
+        setDragging(false)
+        setDragPx(0)
+        if (dx <= -SWIPE_THRESHOLD) setFocused(i => Math.min(APPS.length - 1, i + 1))
+        else if (dx >= SWIPE_THRESHOLD) setFocused(i => Math.max(0, i - 1))
     }
 
-    function getImage(){
-        if (selectedImg === 0){return <img className='swipeImg' src={sq1}></img>}
-        if (selectedImg === 1){return <img className='swipeImg' src={sq2}></img>}
-        if (selectedImg === 2){return <img className='swipeImg' src={sq3}></img>}
-    }
-
-    return(
-        <div className='main'>
-            <div className='swipe'>
-                <div className="imageContainer">
-                    <div
-                        className="sliderTrack"
-                        style={{
-                            transform: `translateX(-${selectedImg * 100}%)`,
-                        }}
-                    >
-                        {images.map((img, index) => (
-                            <img
-                                key={index}
-                                src={img}
-                                alt={`Background ${index + 1}`}
-                                className="swipeImg"
-                            />
-                        ))}
-                    </div>
-
-                    <img src={star} className='star'></img>
+    return (
+        <div className='main appsView'>
+            <div
+                className='carouselViewport'
+                onPointerDown={onDown}
+                onPointerMove={onMove}
+                onPointerUp={onUp}
+                onPointerCancel={onUp}
+            >
+                <div
+                    className='carouselTrack'
+                    style={{
+                        transform: `translateX(calc(${-focused * 100}% + ${dragPx}px))`,
+                        transition: dragging ? 'none' : 'transform 300ms ease',
+                    }}
+                >
+                    {APPS.map((app) => (
+                        <div key={app.name} className='appScreen' style={{ '--app-color': app.color }}>
+                            <div className='appBar'>
+                                <span className='appIcon'>{app.letter}</span>
+                                <span className='appName'>{app.name}</span>
+                            </div>
+                            <div className={`appCanvas ${app.type}`}></div>
+                        </div>
+                    ))}
                 </div>
-                <div className='instruction'>
-                    <img className='icon' src= {side_arrows}></img>
-                    <p>Touch image and swipe to either side to change the background.</p>
-                    <button className={recording ? "button recording" : "button"} onClick={() => setRecording(!recording)}>
-                        Press to record gesture
-                    </button>
-                </div>
+            </div>
+
+            {/* Fixed overlay: the image stays put on screen regardless of which
+                app is focused/dragging underneath it. */}
+            <div className='holdOverlay'>
+                <img
+                    src={photo}
+                    alt=''
+                    draggable={false}
+                    className={held ? 'holdImg held' : 'holdImg'}
+                    onPointerDown={(e) => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); setHeld(true) }}
+                    onPointerUp={() => setHeld(false)}
+                    onPointerCancel={() => setHeld(false)}
+                    onContextMenu={(e) => e.preventDefault()}
+                />
+            </div>
+
+            <div className='carouselDots'>
+                {APPS.map((a, i) => <span key={a.name} className={i === focused ? 'cdot on' : 'cdot'} />)}
             </div>
         </div>
     )

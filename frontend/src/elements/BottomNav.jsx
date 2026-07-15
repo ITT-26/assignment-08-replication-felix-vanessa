@@ -1,20 +1,20 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../App.css'
 
-function Header(){
+// Bottom tab bar.
+function BottomNav(){
     const navigate = useNavigate();
     const { pathname } = useLocation();
 
     const tabs = [
         { path: '/', label: 'Debug' },
-        { path: '/swipe', label: 'Swipe' },
+        { path: '/swipe', label: 'Cut-Paste' },
         { path: '/rotate', label: 'Rotate' },
         { path: '/map', label: 'Map' },
     ];
 
     return(
-        <div className='header'>
-            <h1>GlassHands</h1>
+        <div className='bottomNav'>
             <div className='nav'>
                 {tabs.map(({ path, label }) => (
                     <p
@@ -30,4 +30,4 @@ function Header(){
     )
 }
 
-export default Header
+export default BottomNav

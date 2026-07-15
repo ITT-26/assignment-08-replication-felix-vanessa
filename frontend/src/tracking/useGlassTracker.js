@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { GlassTracker } from './glassTracker';
 
-// Drives a GlassTracker frame loop over the given <video>, painting into the
-// zoom (pano) and preview canvases. Returns { status, tracked, dotsUsed }:
-// status is 'idle' | 'loading' | 'ready' | 'error'; tracked/dotsUsed reflect
-// the latest frame (throttled to a few updates/sec so the loop doesn't trigger
-// a React re-render every frame). StrictMode-safe: the async init is guarded by
-// a `cancelled` flag and the loop + tracker are torn down on cleanup.
+// Runs a GlassTracker frame loop over the <video>, painting the pano + preview
+// canvases. Returns { status, tracked, dotsUsed, handLeft, handRight } (stats
+// throttled to a few updates/sec). StrictMode-safe via the `cancelled` flag.
 export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, active) {
   const [status, setStatus] = useState('idle');
-  const [stats, setStats] = useState({ tracked: false, dotsUsed: 0 });
+  const [stats, setStats] = useState({ tracked: false, dotsUsed: 0, handLeft: false, handRight: false });
 
   useEffect(() => {
     if (!active) return undefined;
@@ -18,8 +15,8 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
     let tracker = null;
     let rafId = null;
     let usingVfc = false;
-    let vfcVideo = null;   // the <video> a pending VFC was scheduled on (for cancel)
-    let lastStats = 0;     // throttle timestamp for the stats state update
+    let vfcVideo = null;   // video a pending VFC was scheduled on (for cancel)
+    let lastStats = 0;     // stats-throttle timestamp
 
     const tick = () => {
       if (cancelled) return;
@@ -29,7 +26,12 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
         const now = performance.now();
         if (res && now - lastStats > 250) {
           lastStats = now;
-          setStats({ tracked: res.tracked, dotsUsed: res.dotsUsed });
+          setStats({
+            tracked: res.tracked,
+            dotsUsed: res.dotsUsed,
+            handLeft: !!res.handLeft,
+            handRight: !!res.handRight,
+          });
         }
       }
       schedule();
@@ -74,5 +76,11 @@ export function useGlassTracker(videoRef, zoomCanvasRef, previewCanvasRef, activ
     };
   }, [active, videoRef, zoomCanvasRef, previewCanvasRef]);
 
-  return { status, tracked: stats.tracked, dotsUsed: stats.dotsUsed };
+  return {
+    status,
+    tracked: stats.tracked,
+    dotsUsed: stats.dotsUsed,
+    handLeft: stats.handLeft,
+    handRight: stats.handRight,
+  };
 }
