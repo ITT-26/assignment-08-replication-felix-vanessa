@@ -10,9 +10,9 @@ A replication of the interaction technique introduced in:
 > Conference on Interactive Surfaces and Spaces (ISS '16)*. ACM.
 > https://dl.acm.org/doi/abs/10.1145/2992154.2992162
 
-**[Demo video](https://youtu.be/Mr11832_My8)**
-
 How we found this paper is documented in [`Research_doc.md`](./Research_doc.md).
+
+**[Demo video](https://youtu.be/Mr11832_My8)**.
 
 ## Offline CV Pipeline Prototype
 
@@ -55,12 +55,12 @@ python cv_video.py path/to/video.mov   # space = pause, q = quit
 `hand_landmarker.task` and the local `hand_landmark_drawer` module sit
 alongside `cv_video.py` in the repo.
 
-## Final Implementation as a Webapp
+## Final Implementation as a Web App
 
 ### Running the Web App
 
 ```powershell
-cd frontend
+cd webapp
 npm install   # only needed the first time
 npm run dev
 ```
@@ -122,7 +122,7 @@ right lens) drives the in-air gestures in the demos.
 
 ### Demos
 
-The webapp features two demos, **Cut-Paste (CP)** and **Map Panning and
+The web app features two demos, **Cut-Paste (CP)** and **Map Panning and
 Tracing (MT)**, both built directly off the GlassHands
 [supplementary video](https://dl.acm.org/doi/abs/10.1145/2992154.2992162#supplementary-materials).
 We picked these two because they were the only techniques for which the
