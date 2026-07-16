@@ -34,6 +34,7 @@ While we were already quite certain which paper we would like to replicate, we w
 - using the reflection of phone and hands in the glasses, the user can then interact with the phone while moving the hands beside the phone
 - seems like it would be a good scope for the two weeks we have
 - already tested and recorded if we can see the reflection in the glasses we have at home and it looked like it could work quite well
+- the paper is from 2016; phone cameras and on-device processing power have improved a lot since then, so we expected the reflection to be sharper and hand tracking to run more reliably for us than what was possible at the time
 - initial problematic: one of us does not have an android phone and we figured it would be hard to implement it for iOS
 
 ### Inclusive Voice Interaction
