@@ -14,6 +14,8 @@ How we found this paper is documented in [`Research_doc.md`](./Research_doc.md).
 
 ## Offline CV Pipeline Prototype
 
+![Screen recording of the offline prototype: a single cropped view of both lenses, with a hand skeleton drawn over each detected hand, a lens outline (originally used for phone detection), and an FPS counter](./prototype/prototype.gif)
+
 Before building the web app, we created [`cv_video.py`](./prototype/cv_video.py) as a
 prototyping tool. It let us test different computer-vision techniques (glasses
 detection, reflection enhancement, phone detection, and hand/fingertip
@@ -73,8 +75,9 @@ private" / "This connection is not secure"). This is expected, you need to
 tell the browser to proceed anyway:
 
 - **iOS, Safari (recommended):** tap **Show Details** → **visit this
-  website** → **Visit Website**. Safari handles the untrusted certificate
-  and camera permissions most reliably on iOS.
+  website** → **Visit Website**, then **refresh the page** once. Safari
+  handles the untrusted certificate and camera permissions most reliably on
+  iOS.
 - **Android, Chrome:** tap **Advanced** → **Proceed to `<ip>` (unsafe)**.
 
 Make sure your phone and computer are on the **same Wi-Fi network**, then
