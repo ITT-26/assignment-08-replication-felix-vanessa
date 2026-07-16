@@ -51,7 +51,7 @@ const GAMMA = 0.4, CLAHE_CLIP = 4.0, BILATERAL_D = 3, SAT_BOOST = 2.2;
 // inference call (a raw lens crop is too small to track on its own).
 const HAND_TILE = 320;
 const INDEX_FINGERTIP = 8;
-const PINCH_RATIO = 0.45;  // pinch when thumb-index gap < this * palm size
+const PINCH_RATIO = 0.32;  // pinch when thumb-index gap < this * palm size
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 

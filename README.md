@@ -10,6 +10,8 @@ A replication of the interaction technique introduced in:
 > Conference on Interactive Surfaces and Spaces (ISS '16)*. ACM.
 > https://dl.acm.org/doi/abs/10.1145/2992154.2992162
 
+**[Demo video](https://youtu.be/Mr11832_My8)**
+
 How we found this paper is documented in [`Research_doc.md`](./Research_doc.md).
 
 ## Offline CV Pipeline Prototype
